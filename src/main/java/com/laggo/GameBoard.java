@@ -1,10 +1,13 @@
 package com.laggo;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class GameBoard {
+    // General structure and printing code from https://github.com/Gelbpunkt/IdleRPG/
     private final int width;
     private final int height;
 
@@ -85,14 +88,57 @@ public class GameBoard {
         return Arrays.stream(asMatrix).map(String::new).collect(Collectors.joining("\n"));
     }
 
-    private BoardCell getCellIn(Collection<BoardCell> cells) {
+    private BoardCell getRandCellFrom(Collection<BoardCell> cells) {
         return cells.stream().toList().get(this.rand.nextInt(cells.size()));
     }
 
-    private void doWalk() {
+    private List<BoardCell> findLoopPointsIn(List<BoardCell> walk) {
+        Set<BoardCell> allWalkCells = new HashSet<>();
+        List<BoardCell> repeatCells = new ArrayList<>();
+        for (final BoardCell cell : walk) {
+            if (!allWalkCells.add(cell)) {
+                repeatCells.add(cell);
+            }
+        }
+        return repeatCells;
+    }
+
+    private CellWalk eraseLoops(List<BoardCell> walk) {
+        List<BoardCell> ret = new ArrayList<>(walk);
+
+        List<BoardCell> loopPoints = this.findLoopPointsIn(walk);
+        while (!loopPoints.isEmpty()) {
+            int loopStartInd = ret.indexOf(loopPoints.get(0)) + 1;
+            int loopStartEnd = ret.lastIndexOf(loopPoints.get(0));
+            ret.subList(loopStartInd, loopStartEnd + 1).clear();
+
+            loopPoints = this.findLoopPointsIn(ret);
+        }
+
+        return new CellWalk(ret);
+    }
+
+    private void populate() {
+        // Wilson's algorithm involving a loop-erased random walk.
+        // This took too long.
         Set<BoardCell> visitedCells = new HashSet<>(this.width * this.height);
 
-        WallDirection[][] directions = new WallDirection[this.height][this.width];
+        BoardCell start = this.getCellAt(0, 0);
+        visitedCells.add(start);
 
+        while (visitedCells.size() < this.width * this.height) {
+            BoardCell walkStart = this.getRandCellFrom(CollectionUtils.disjunction(this.cells.values(), visitedCells));
+            CellWalk thisWalk = new CellWalk();
+            thisWalk.push(walkStart);
+            while (!visitedCells.contains(thisWalk.peek())) {
+                thisWalk.push(this.getRandCellFrom(this.getNeighborsOf(thisWalk.peek())));
+            }
+
+            CellWalk correctedWalk = this.eraseLoops(thisWalk.toList());
+            visitedCells.addAll(correctedWalk.toList());
+            while (correctedWalk.size() > 1) {
+                correctedWalk.pop().connectTo(correctedWalk.peek());
+            }
+        }
     }
 }
