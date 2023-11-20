@@ -50,7 +50,7 @@ public class GameBoard {
         }).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
-    private char[][] toSkinnyMatrix() {
+    public char[][] toSkinnyMatrix() {
         char[][] ret = new char[this.height * 2 + 1][this.width * 2 + 1];
 
         // start with all walls
@@ -67,13 +67,16 @@ public class GameBoard {
             ret[yInArray][xInArray] = this.playerLocation == cell.getLocation() ? '@' : ' ';
 
             // then open up some walls
-            if (cell.canLeave(WallDirection.UP) && cell.getLocation().getY() > 0) {
+            if (cell.canLeave(WallDirection.UP)) {
                 ret[yInArray - 1][xInArray] = ' ';
-            } else if (cell.canLeave(WallDirection.DOWN) && cell.getLocation().getY() < this.height - 1) {
+            }
+            if (cell.canLeave(WallDirection.DOWN)) {
                 ret[yInArray + 1][xInArray] = ' ';
-            } else if (cell.canLeave(WallDirection.LEFT) && cell.getLocation().getX() > 0) {
+            }
+            if (cell.canLeave(WallDirection.LEFT)) {
                 ret[yInArray][xInArray - 1] = ' ';
-            } else if (cell.canLeave(WallDirection.RIGHT) && cell.getLocation().getX() < this.width - 1) {
+            }
+            if (cell.canLeave(WallDirection.RIGHT)) {
                 ret[yInArray][xInArray + 1] = ' ';
             }
         }
@@ -81,11 +84,75 @@ public class GameBoard {
         return ret;
     }
 
+    public String toUnicodeString() {
+        char[][] skinnyMatrix = this.toSkinnyMatrix();
+        char[][] doubleWideMatrix = new char[skinnyMatrix.length][skinnyMatrix[0].length * 2 - 1];
+        char[][] result = new char[skinnyMatrix.length][skinnyMatrix[0].length * 2 - 1];
+
+        for (int y = 0; y < skinnyMatrix.length; y++) {
+            for (int x = 0; x < skinnyMatrix[y].length; x++) {
+                doubleWideMatrix[y][x * 2] = skinnyMatrix[y][x];
+                if (x < skinnyMatrix[y].length - 1) {
+                    doubleWideMatrix[y][x * 2 + 1] = (skinnyMatrix[y][x] == ' ') ? ' ' : skinnyMatrix[y][x + 1];
+                }
+            }
+        }
+
+        for (int y = 0; y < doubleWideMatrix.length; y++) {
+            for (int x = 0; x < doubleWideMatrix[y].length; x++) {
+                if (doubleWideMatrix[y][x] == 'O') {
+                    boolean north = isWall(x, y - 1, doubleWideMatrix);
+                    boolean south = isWall(x, y + 1, doubleWideMatrix);
+                    boolean east = isWall(x + 1, y, doubleWideMatrix);
+                    boolean west = isWall(x - 1, y, doubleWideMatrix);
+
+                    result[y][x] = getUnicodeCharacterForWall(north, south, east, west);
+                } else {
+                    result[y][x] = ' ';
+                }
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (char[] row : result) {
+            for (char c : row) {
+                sb.append(c);
+            }
+            sb.append('\n');
+        }
+        return sb.toString();
+    }
+
+    private boolean isWall(int x, int y, char[][] matrix) {
+        return x >= 0 && x < matrix[0].length && y >= 0 && y < matrix.length && matrix[y][x] == 'O';
+    }
+
+    private char getUnicodeCharacterForWall(boolean north, boolean south, boolean east, boolean west) {
+        if (north && east && !south && !west) return '└';
+        if (north && west && !south && !east) return '┘';
+        if (south && east && !north && !west) return '┌';
+        if (south && west && !north && !east) return '┐';
+        if (south && west && north && east) return '┼';
+
+        if (north && south && east && !west) return '├';
+        if (north && south && west && !east) return '┤';
+        if (east && west && north && !south) return '┴';
+        if (east && west && south && !north) return '┬';
+
+        if (north && south && !east && !west) return '│';
+        if (east && west && !north && !south) return '─';
+
+        if (north && !south && !east && !west) return '╵';
+        if (south && !north && !east && !west) return '╷';
+        if (east && !west && !north && !south) return '╶';
+        if (west && !east && !north && !south) return '╴';
+
+        return ' ';
+    }
+
     @Override
     public String toString() {
-        char[][] asMatrix = this.toSkinnyMatrix();
-
-        return Arrays.stream(asMatrix).map(String::new).collect(Collectors.joining("\n"));
+        return this.toUnicodeString();
     }
 
     private BoardCell getRandCellFrom(Collection<BoardCell> cells) {
