@@ -6,14 +6,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/*
+General structure and printing code from https://github.com/Gelbpunkt/IdleRPG/.
+Maze fill implementation our own based on loop-erased random walks; see Wilson's paper @MIT https://www.cs.cmu.edu/~15859n/RelatedWork/RandomTrees-Wilson.pdf
+ */
 public class GameBoard {
-    // General structure and printing code from https://github.com/Gelbpunkt/IdleRPG/
+    private static final Set<Character> NOT_WALL = new HashSet<>(Arrays.asList('@', ' '));
     private final int width;
     private final int height;
-
     private final Hashtable<BoardLocation, BoardCell> cells;
-
-    private final BoardLocation playerLocation = new BoardLocation(0, 0);
+    private final BoardLocation playerLocation = new BoardLocation(2, 0);
     private final Random rand = new Random(1337L);
 
     public GameBoard(int width, int height) {
@@ -50,7 +52,22 @@ public class GameBoard {
         }).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
+    /*
+    Creates the most compact representation of this maze possible. An example (reproduce by setting the `rand` seed above to `1337L`:
+    OOOOOOOOOOO
+    O@        O
+    O O O OOO O
+    O O O O   O
+    OOO O OOO O
+    O O O O O O
+    O O OOO O O
+    O       O O
+    OOO O OOOOO
+    O   O     O
+    OOOOOOOOOOO
+    */
     public char[][] toSkinnyMatrix() {
+
         char[][] ret = new char[this.height * 2 + 1][this.width * 2 + 1];
 
         // start with all walls
@@ -84,68 +101,93 @@ public class GameBoard {
         return ret;
     }
 
+    /*
+    Convert the above "skinny" representation to a fuller-looking one using special Unicode characters at wall junctions
+    and doubling the width of the maze to achieve a more square aspect ratio. Example output (same repro steps as above):
+    ┌───────────────────┐
+    │ @                 │
+    │   ╷   ╷   ┌───╴   │
+    │   │   │   │       │
+    ├───┤   │   ├───┐   │
+    │   │   │   │   │   │
+    │   ╵   └───┘   │   │
+    │               │   │
+    ├───╴   ╷   ╶───┴───┤
+    │       │           │
+    └───────┴───────────┘
+     */
     public String toUnicodeString() {
+        // start with what we did above
         char[][] skinnyMatrix = this.toSkinnyMatrix();
         char[][] doubleWideMatrix = new char[skinnyMatrix.length][skinnyMatrix[0].length * 2 - 1];
         char[][] result = new char[skinnyMatrix.length][skinnyMatrix[0].length * 2 - 1];
 
+        // double the width of `skinnyMatrix`, but make sure not to copy special symbols like `@` for the player twice
         for (int y = 0; y < skinnyMatrix.length; y++) {
             for (int x = 0; x < skinnyMatrix[y].length; x++) {
                 doubleWideMatrix[y][x * 2] = skinnyMatrix[y][x];
                 if (x < skinnyMatrix[y].length - 1) {
-                    doubleWideMatrix[y][x * 2 + 1] = (skinnyMatrix[y][x] == ' ') ? ' ' : skinnyMatrix[y][x + 1];
+                    doubleWideMatrix[y][x * 2 + 1] = (NOT_WALL.contains(skinnyMatrix[y][x])) ? ' ' : skinnyMatrix[y][x];
                 }
             }
         }
 
+        // remove any wall character directly to the left of non-wall space, transforming 2-wide walkways into 3-wide
+        // ones and leaving exactly one space for a perfectly centred icon
+        for (int y = 0; y < doubleWideMatrix.length; y++) {
+            for (int x = 0; x < doubleWideMatrix[y].length; x++) {
+                if (!isWall(x, y, doubleWideMatrix) && isWall(x - 1, y, doubleWideMatrix)) {
+                    doubleWideMatrix[y][x - 1] = ' ';
+                }
+            }
+        }
+
+        // replace all generic wall characters with special unicode which is more "aware" of the walls around it
+        // copy into a result buffer to avoid clashing with itself
         for (int y = 0; y < doubleWideMatrix.length; y++) {
             for (int x = 0; x < doubleWideMatrix[y].length; x++) {
                 if (doubleWideMatrix[y][x] == 'O') {
-                    boolean north = isWall(x, y - 1, doubleWideMatrix);
-                    boolean south = isWall(x, y + 1, doubleWideMatrix);
-                    boolean east = isWall(x + 1, y, doubleWideMatrix);
-                    boolean west = isWall(x - 1, y, doubleWideMatrix);
+                    boolean up = isWall(x, y - 1, doubleWideMatrix);
+                    boolean down = isWall(x, y + 1, doubleWideMatrix);
+                    boolean left = isWall(x - 1, y, doubleWideMatrix);
+                    boolean right = isWall(x + 1, y, doubleWideMatrix);
 
-                    result[y][x] = getUnicodeCharacterForWall(north, south, east, west);
+                    // figure out how this wall ought to connect to others around it
+                    result[y][x] = getUnicodeCharacterForWall(up, down, left, right);
                 } else {
-                    result[y][x] = ' ';
+                    // this isn't a wall; just copy it
+                    result[y][x] = doubleWideMatrix[y][x];
                 }
             }
         }
 
-        StringBuilder sb = new StringBuilder();
-        for (char[] row : result) {
-            for (char c : row) {
-                sb.append(c);
-            }
-            sb.append('\n');
-        }
-        return sb.toString();
+        // join each line into a `String`, join the lines with newlines, and send it off
+        return Arrays.stream(result).map(String::new).collect(Collectors.joining("\n"));
     }
 
     private boolean isWall(int x, int y, char[][] matrix) {
         return x >= 0 && x < matrix[0].length && y >= 0 && y < matrix.length && matrix[y][x] == 'O';
     }
 
-    private char getUnicodeCharacterForWall(boolean north, boolean south, boolean east, boolean west) {
-        if (north && east && !south && !west) return '└';
-        if (north && west && !south && !east) return '┘';
-        if (south && east && !north && !west) return '┌';
-        if (south && west && !north && !east) return '┐';
-        if (south && west && north && east) return '┼';
+    private char getUnicodeCharacterForWall(boolean up, boolean down, boolean left, boolean right) {
+        if (up && down && left && right) return '┼';
 
-        if (north && south && east && !west) return '├';
-        if (north && south && west && !east) return '┤';
-        if (east && west && north && !south) return '┴';
-        if (east && west && south && !north) return '┬';
+        if (!up && down && left && right) return '┬';
+        if (up && !down && left && right) return '┴';
+        if (up && down && !left && right) return '├';
+        if (up && down && left && !right) return '┤';
 
-        if (north && south && !east && !west) return '│';
-        if (east && west && !north && !south) return '─';
+        if (!up && !down && left && right) return '─';
+        if (up && !down && !left && right) return '└';
+        if (up && down && !left && !right) return '│';
+        if (!up && down && !left && right) return '┌';
+        if (up && !down && left && !right) return '┘';
+        if (!up && down && left && !right) return '┐';
 
-        if (north && !south && !east && !west) return '╵';
-        if (south && !north && !east && !west) return '╷';
-        if (east && !west && !north && !south) return '╶';
-        if (west && !east && !north && !south) return '╴';
+        if (up && !down && !left && !right) return '╵';
+        if (!up && down && !left && !right) return '╷';
+        if (!up && !down && left && !right) return '╴';
+        if (!up && !down && !left && right) return '╶';
 
         return ' ';
     }
