@@ -64,7 +64,7 @@ public class GameBoard {
             final int xInArray = cell.getLocation().getX() * 2 + 1;
             final int yInArray = cell.getLocation().getY() * 2 + 1;
 
-            ret[yInArray][xInArray] = this.playerLocation == cell.getLocation() ? '@' : ' ';
+            ret[yInArray][xInArray] = this.playerLocation.equals(cell.getLocation()) ? '@' : ' ';
 
             // then open up some walls
             if (cell.canLeave(WallDirection.UP)) {

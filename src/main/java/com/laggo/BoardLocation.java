@@ -60,4 +60,8 @@ public class BoardLocation implements Cloneable {
                 ", y=" + y +
                 '}';
     }
+
+    public boolean equals(BoardLocation other) {
+        return other != null && this.x == other.x && this.y == other.y;
+    }
 }
