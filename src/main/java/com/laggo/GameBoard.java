@@ -235,19 +235,27 @@ public class GameBoard {
         BoardCell start = this.getCellAt(0, 0);
         visitedCells.add(start);
 
+        // While there are cells left to visit:
         while (visitedCells.size() < this.width * this.height) {
+            // Start a walk at an unvisited cell.
             BoardCell walkStart = this.getRandCellFrom(CollectionUtils.disjunction(this.cells.values(), visitedCells));
             CellWalk thisWalk = new CellWalk();
             thisWalk.push(walkStart);
+
+            // Walk to random neighbours of the cell at the head of the stack until we stumble back into a visited cell.
             while (!visitedCells.contains(thisWalk.peek())) {
                 thisWalk.push(this.getRandCellFrom(this.getNeighborsOf(thisWalk.peek())));
             }
 
+            // Erase any loops on this walk.
             CellWalk correctedWalk = this.eraseLoops(thisWalk.toList());
             visitedCells.addAll(correctedWalk.toList());
             while (correctedWalk.size() > 1) {
+                // For every cell on the stack with another cell below it, link the two cells.
                 correctedWalk.pop().connectTo(correctedWalk.peek());
             }
+
+            // Repeat above with a new walk. In this way, we will have a perfectly random and balanced maze.
         }
     }
 }
