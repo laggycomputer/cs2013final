@@ -15,7 +15,7 @@ public class GameBoard {
     private final int width;
     private final int height;
     private final Hashtable<BoardLocation, BoardCell> cells;
-    private final BoardLocation playerLocation = new BoardLocation(2, 0);
+    private BoardLocation playerLocation = new BoardLocation(0, 0);
     private final Random rand = new Random(1337L);
 
     public GameBoard(int width, int height) {
@@ -255,7 +255,29 @@ public class GameBoard {
                 correctedWalk.pop().connectTo(correctedWalk.peek());
             }
 
-            // Repeat above with a new walk. In this way, we will have a perfectly random and balanced maze.
+            // Repeat above with a new walk. In this way, we will have a perfectly random maze.
         }
+    }
+
+    public boolean tryMove(WallDirection direction) {
+        if (!this.getCellAt(this.playerLocation).canLeave(direction)) {
+            return false;
+        }
+
+        switch (direction) {
+            case UP:
+                this.playerLocation = this.playerLocation.offsetBy(0, -1);
+                break;
+            case DOWN:
+                this.playerLocation = this.playerLocation.offsetBy(0, 1);
+                break;
+            case LEFT:
+                this.playerLocation = this.playerLocation.offsetBy(-1, 0);
+                break;
+            case RIGHT:
+                this.playerLocation = this.playerLocation.offsetBy(1, 0);
+                break;
+        }
+        return true;
     }
 }
