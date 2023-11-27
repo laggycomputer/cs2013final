@@ -6,9 +6,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class Enemy extends BoardObject {
     private static final List<String> NAMES = new ArrayList<>(List.of(new String[]{
