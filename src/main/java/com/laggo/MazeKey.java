@@ -10,6 +10,7 @@ public class MazeKey extends BoardObject {
 
     @Override
     public void onWalkedOn(GameBoard board, Terminal terminal) {
+        board.addThingToPrint("You did it!");
         this.isVisible = false;
     }
 

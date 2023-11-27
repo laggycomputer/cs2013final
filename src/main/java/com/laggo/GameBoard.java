@@ -23,6 +23,8 @@ public class GameBoard {
     private final boolean isStopped = false;
     private final Set<String> NOT_WALL;
     private BoardLocation playerLocation = new BoardLocation(0, 0);
+    boolean timeToQuit = false;
+    private final LinkedList<String> thingsToPrint = new LinkedList<>();
 
     public GameBoard(int width, int height) {
         this.width = width;
@@ -41,7 +43,8 @@ public class GameBoard {
         this.populate();
         this.NOT_WALL = new HashSet<>(Arrays.asList("@", " ",
                 new MazeKey(new BoardLocation(0, 0)).getIcon(),
-                new Enemy(new BoardLocation(0, 0), "cs2013").getIcon()
+                new Enemy(new BoardLocation(0, 0), "cs2013").getIcon(),
+                new Exit().getIcon()
         ));
     }
 
@@ -278,6 +281,8 @@ public class GameBoard {
             // Repeat above with a new walk. In this way, we will have a perfectly random maze.
         }
 
+        objects.put(new BoardLocation(this.width - 1, this.height - 1), new Exit());
+
         int randX;
         int randY;
         do {
@@ -323,11 +328,14 @@ public class GameBoard {
     }
 
     public void run(Terminal terminal) throws IOException {
-        boolean timeToQuit = false;
-
         KeyStroke in;
         do {
             System.out.println(this);
+            while (!this.thingsToPrint.isEmpty()) {
+                System.out.print(thingsToPrint.pop());
+                System.out.print(" ");
+            }
+            System.out.print("\n");
             in = terminal.readInput();
 
             if (in.getKeyType() != KeyType.Character) {
@@ -336,7 +344,7 @@ public class GameBoard {
 
             switch (in.getCharacter()) {
                 case 'q':
-                    timeToQuit = true;
+                    this.timeToQuit = true;
                     continue;
                 case 'w':
                     this.tryMove(WallDirection.UP, terminal);
@@ -351,8 +359,16 @@ public class GameBoard {
                     this.tryMove(WallDirection.RIGHT, terminal);
                     break;
             }
-        } while (!timeToQuit);
+        } while (!this.timeToQuit);
 //            KeyStroke keyPressed = terminal.readInput();
 //            System.out.println("keyPressed: " + keyPressed.getKeyType());
+    }
+
+    public boolean hasPickedUpAllKeys() {
+        return this.objects.values().stream().noneMatch(o -> o.isVisible && o instanceof MazeKey);
+    }
+
+    public void addThingToPrint(String string) {
+        this.thingsToPrint.push(string);
     }
 }
