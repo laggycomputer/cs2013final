@@ -9,8 +9,8 @@ import java.io.IOException;
 public class Enemy extends BoardObject {
     private final String name;
 
-    public Enemy(BoardLocation loc) {
-        super(loc);
+    public Enemy() {
+        super();
         this.name = Enemy.getRandomName();
     }
 
@@ -51,10 +51,11 @@ public class Enemy extends BoardObject {
         }
 
         board.addThingToPrint("Enemy " + this.name + " defeated!");
+        this.isVisible = false;
     }
 
     @Override
     public String getIcon() {
-        return "M";
+        return this.isVisible ? "M" : " ";
     }
 }

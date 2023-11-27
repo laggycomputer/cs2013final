@@ -3,8 +3,7 @@ package com.laggo;
 import com.googlecode.lanterna.terminal.Terminal;
 
 public class MazeKey extends BoardObject {
-    public MazeKey(BoardLocation loc) {
-        super(loc);
+    public MazeKey() {
         this.isStopping = false;
     }
 

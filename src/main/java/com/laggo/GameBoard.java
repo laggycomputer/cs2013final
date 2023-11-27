@@ -20,7 +20,6 @@ public class GameBoard {
     private final Hashtable<BoardLocation, BoardCell> cells;
     private final Hashtable<BoardLocation, BoardObject> objects = new Hashtable<>();
     private final Random rand = new Random(1337L);
-    private final boolean isStopped = false;
     private final Set<String> NOT_WALL;
     private final LinkedList<String> thingsToPrint = new LinkedList<>();
     boolean hasWon = false;
@@ -43,8 +42,8 @@ public class GameBoard {
 
         this.populate();
         this.NOT_WALL = new HashSet<>(Arrays.asList("@", " ",
-                new MazeKey(new BoardLocation(0, 0)).getIcon(),
-                new Enemy(new BoardLocation(0, 0)).getIcon(),
+                new MazeKey().getIcon(),
+                new Enemy().getIcon(),
                 new Exit().getIcon()
         ));
     }
@@ -282,30 +281,73 @@ public class GameBoard {
             // Repeat above with a new walk. In this way, we will have a perfectly random maze.
         }
 
+        // place map objects
+        // this will freeze if the maze is small; too bad!
         objects.put(new BoardLocation(this.width - 1, this.height - 1), new Exit());
 
-        int randX;
-        int randY;
-        do {
-            randX = this.rand.nextInt(width);
-            randY = this.rand.nextInt(height);
-        } while ((randX == 0 && randY == 0) || this.objects.containsKey(new BoardLocation(randX, randY)));
+        // solve the maze to place enemies along the path
+        CellWalk solution = this.solve(this.getCellAt(this.playerLocation));
+        assert solution != null;
 
-        objects.put(new BoardLocation(randX, randY), new MazeKey(new BoardLocation(randX, randY)));
+        for (int i = 0; i < 2; i++) {
+            BoardLocation target;
+            do {
+                target = new BoardLocation(this.rand.nextInt(width), this.rand.nextInt(height));
+            } while (playerLocation.equals(target) || this.objects.containsKey(target));
 
-        do {
-            randX = this.rand.nextInt(width);
-            randY = this.rand.nextInt(height);
-        } while ((randX == 0 && randY == 0) || this.objects.containsKey(new BoardLocation(randX, randY)));
+            objects.put(target, new MazeKey());
+        }
 
-        objects.put(new BoardLocation(randX, randY), new MazeKey(new BoardLocation(randX, randY)));
+        for (int i = 0; i < 2; i++) {
+            // place enemies along the maze solution path
+            BoardLocation target;
+            do {
+                target = solution.toList().get(this.rand.nextInt(solution.size())).getLocation();
+            } while (this.playerLocation.equals(target) || this.objects.containsKey(target));
 
-        do {
-            randX = this.rand.nextInt(width);
-            randY = this.rand.nextInt(height);
-        } while ((randX == 0 && randY == 0) || this.objects.containsKey(new BoardLocation(randX, randY)));
+            objects.put(target, new Enemy());
+        }
+    }
 
-        objects.put(new BoardLocation(randX, randY), new Enemy(new BoardLocation(randX, randY)));
+    private CellWalk solve(BoardCell start) {
+        /*
+        A breadth-first approach to find the solution to the maze. Taken from
+        https://en.wikipedia.org/wiki/Breadth-first_search.
+         */
+        Queue<BoardCell> toExplore = new LinkedList<>();
+        Set<BoardCell> explored = new HashSet<>(this.width * this.height);
+        Map<BoardCell, BoardCell> parents = new HashMap<>();
+        toExplore.add(start);
+        explored.add(start);
+
+        while (!toExplore.isEmpty()) {
+            BoardCell here = toExplore.remove();
+            if (this.objects.getOrDefault(here.getLocation(), null) instanceof Exit) {
+                // time to go; use the parents lookup table to trace back from the finish to the start
+                CellWalk ret = new CellWalk();
+                // start at the finish...
+                BoardCell toPushOnWalk = here;
+                do {
+                    // push this cell...
+                    ret.push(toPushOnWalk);
+                    // then start again at its parent
+                    toPushOnWalk = parents.get(toPushOnWalk);
+                } while (toPushOnWalk != null);
+
+                return ret;
+            }
+            for (final BoardCell neighbor : this.getNeighborsOf(here).stream()
+                    .filter(n -> here.canLeave(here.getWallTo(n))).collect(Collectors.toSet())) {
+                if (!explored.contains(neighbor)) {
+                    explored.add(neighbor);
+                    parents.put(neighbor, here);
+                    toExplore.add(neighbor);
+                }
+            }
+        }
+
+        // should never happen, the maze is connected
+        return null;
     }
 
     public boolean tryMove(WallDirection direction, Terminal terminal) throws IOException {
