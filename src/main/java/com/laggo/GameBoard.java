@@ -386,8 +386,7 @@ public class GameBoard {
     }
 
     public void run(Terminal terminal) throws IOException {
-        // no idea why, first character here gets eaten
-        System.out.println(" Welcome! This maze game scales in size and difficulty based on your window size.");
+        System.out.println("Welcome! This maze game scales in size and difficulty based on your window size.");
         System.out.println("Please take this chance to resize your window before the maze is generated. Press any key when done.");
         System.out.println("E is the exit, M is a monster, K is a key. You need all keys to exit.");
         System.out.println("How to play: wasd to move, q or ^C to quit, some typing may be involved! Have fun!");
