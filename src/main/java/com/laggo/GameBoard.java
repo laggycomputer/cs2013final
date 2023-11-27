@@ -1,7 +1,11 @@
 package com.laggo;
 
+import com.googlecode.lanterna.input.KeyStroke;
+import com.googlecode.lanterna.input.KeyType;
+import com.googlecode.lanterna.terminal.Terminal;
 import org.apache.commons.collections4.CollectionUtils;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -11,13 +15,14 @@ General structure and printing code from https://github.com/Gelbpunkt/IdleRPG/.
 Maze fill implementation our own based on loop-erased random walks; see Wilson's paper @MIT https://www.cs.cmu.edu/~15859n/RelatedWork/RandomTrees-Wilson.pdf
  */
 public class GameBoard {
-    private static final Set<String> NOT_WALL = new HashSet<>(Arrays.asList("@", " "));
     private final int width;
     private final int height;
     private final Hashtable<BoardLocation, BoardCell> cells;
     private final Hashtable<BoardLocation, BoardObject> objects = new Hashtable<>();
-    private BoardLocation playerLocation = new BoardLocation(0, 0);
     private final Random rand = new Random(1337L);
+    private Set<String> NOT_WALL = new HashSet<>(Arrays.asList("@", " "));
+    private BoardLocation playerLocation = new BoardLocation(0, 0);
+    private final boolean isStopped = false;
 
     public GameBoard(int width, int height) {
         this.width = width;
@@ -34,6 +39,10 @@ public class GameBoard {
         }
 
         this.populate();
+
+        // TODO
+        this.NOT_WALL = new HashSet<>(Arrays.asList("@", " ", new MazeKey(new BoardLocation(0, 0)).getIcon()));
+        objects.put(new BoardLocation(0, 1), new MazeKey(new BoardLocation(0, 1)));
     }
 
     public BoardCell getCellAt(BoardLocation loc) {
@@ -289,6 +298,49 @@ public class GameBoard {
                 this.playerLocation = this.playerLocation.offsetBy(1, 0);
                 break;
         }
+
+        if (this.objects.containsKey(this.playerLocation)) {
+            this.objects.get(this.playerLocation).onWalkedOn();
+        }
+//        !isStopped && this.objects.get(playerLocation).isStopping) {
+//            this.isStopped = true;
+//        }
+//
+
         return true;
+    }
+
+    public void run(Terminal terminal) throws IOException {
+        boolean timeToQuit = false;
+
+        KeyStroke in;
+        do {
+            System.out.println(this);
+            in = terminal.readInput();
+
+            if (in.getKeyType() != KeyType.Character) {
+                continue;
+            }
+
+            switch (in.getCharacter()) {
+                case 'q':
+                    timeToQuit = true;
+                    continue;
+                case 'w':
+                    this.tryMove(WallDirection.UP);
+                    break;
+                case 'a':
+                    this.tryMove(WallDirection.LEFT);
+                    break;
+                case 's':
+                    this.tryMove(WallDirection.DOWN);
+                    break;
+                case 'd':
+                    this.tryMove(WallDirection.RIGHT);
+                    break;
+            }
+        } while (!timeToQuit);
+//            KeyStroke keyPressed = terminal.readInput();
+//            System.out.println("keyPressed: " + keyPressed.getKeyType());
     }
 }
