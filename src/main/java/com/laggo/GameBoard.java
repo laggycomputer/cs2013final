@@ -20,9 +20,9 @@ public class GameBoard {
     private final Hashtable<BoardLocation, BoardCell> cells;
     private final Hashtable<BoardLocation, BoardObject> objects = new Hashtable<>();
     private final Random rand = new Random(1337L);
-    private Set<String> NOT_WALL = new HashSet<>(Arrays.asList("@", " "));
-    private BoardLocation playerLocation = new BoardLocation(0, 0);
     private final boolean isStopped = false;
+    private final Set<String> NOT_WALL;
+    private BoardLocation playerLocation = new BoardLocation(0, 0);
 
     public GameBoard(int width, int height) {
         this.width = width;
@@ -39,10 +39,10 @@ public class GameBoard {
         }
 
         this.populate();
-
-        // TODO
-        this.NOT_WALL = new HashSet<>(Arrays.asList("@", " ", new MazeKey(new BoardLocation(0, 0)).getIcon()));
-        objects.put(new BoardLocation(0, 1), new MazeKey(new BoardLocation(0, 1)));
+        this.NOT_WALL = new HashSet<>(Arrays.asList("@", " ",
+                new MazeKey(new BoardLocation(0, 0)).getIcon(),
+                new Enemy(new BoardLocation(0, 0), "cs2013").getIcon()
+        ));
     }
 
     public BoardCell getCellAt(BoardLocation loc) {
@@ -277,9 +277,25 @@ public class GameBoard {
 
             // Repeat above with a new walk. In this way, we will have a perfectly random maze.
         }
+
+        int randX;
+        int randY;
+        do {
+            randX = this.rand.nextInt(width);
+            randY = this.rand.nextInt(height);
+        } while ((randX == 0 && randY == 0) || this.objects.containsKey(new BoardLocation(randX, randY)));
+
+        objects.put(new BoardLocation(randX, randY), new MazeKey(new BoardLocation(randX, randY)));
+
+        do {
+            randX = this.rand.nextInt(width);
+            randY = this.rand.nextInt(height);
+        } while ((randX == 0 && randY == 0) || this.objects.containsKey(new BoardLocation(randX, randY)));
+
+        objects.put(new BoardLocation(randX, randY), new MazeKey(new BoardLocation(randX, randY)));
     }
 
-    public boolean tryMove(WallDirection direction) {
+    public boolean tryMove(WallDirection direction, Terminal terminal) {
         if (!this.getCellAt(this.playerLocation).canLeave(direction)) {
             return false;
         }
@@ -300,12 +316,8 @@ public class GameBoard {
         }
 
         if (this.objects.containsKey(this.playerLocation)) {
-            this.objects.get(this.playerLocation).onWalkedOn();
+            this.objects.get(this.playerLocation).onWalkedOn(this, terminal);
         }
-//        !isStopped && this.objects.get(playerLocation).isStopping) {
-//            this.isStopped = true;
-//        }
-//
 
         return true;
     }
@@ -327,16 +339,16 @@ public class GameBoard {
                     timeToQuit = true;
                     continue;
                 case 'w':
-                    this.tryMove(WallDirection.UP);
+                    this.tryMove(WallDirection.UP, terminal);
                     break;
                 case 'a':
-                    this.tryMove(WallDirection.LEFT);
+                    this.tryMove(WallDirection.LEFT, terminal);
                     break;
                 case 's':
-                    this.tryMove(WallDirection.DOWN);
+                    this.tryMove(WallDirection.DOWN, terminal);
                     break;
                 case 'd':
-                    this.tryMove(WallDirection.RIGHT);
+                    this.tryMove(WallDirection.RIGHT, terminal);
                     break;
             }
         } while (!timeToQuit);

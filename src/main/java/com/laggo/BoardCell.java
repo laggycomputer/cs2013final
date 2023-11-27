@@ -4,8 +4,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class BoardCell {
+//            System.out.println("keyPressed: " + keyPressed.getKeyType());
     private final BoardLocation location;
-    Set<WallDirection> walls;
+    private final Set<WallDirection> walls;
 
     public BoardCell(BoardLocation location, Set<WallDirection> walls) {
         this.location = location;

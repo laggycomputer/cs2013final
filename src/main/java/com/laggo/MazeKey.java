@@ -1,5 +1,7 @@
 package com.laggo;
 
+import com.googlecode.lanterna.terminal.Terminal;
+
 public class MazeKey extends BoardObject {
     public MazeKey(BoardLocation loc) {
         super(loc);
@@ -7,7 +9,7 @@ public class MazeKey extends BoardObject {
     }
 
     @Override
-    public void onWalkedOn() {
+    public void onWalkedOn(GameBoard board, Terminal terminal) {
         this.isVisible = false;
     }
 

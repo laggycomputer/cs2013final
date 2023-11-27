@@ -1,11 +1,13 @@
 package com.laggo;
 
+import com.googlecode.lanterna.terminal.Terminal;
+
 public abstract class BoardObject {
-    private final BoardLocation loc;
+    final BoardLocation loc;
     public boolean isStopping;
     public boolean isVisible = true;
 
-    public abstract void onWalkedOn();
+    public abstract void onWalkedOn(GameBoard board, Terminal terminal);
 
     public BoardLocation getLoc() {
         return this.loc;

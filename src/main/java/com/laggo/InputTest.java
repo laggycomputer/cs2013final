@@ -1,14 +1,10 @@
 package com.laggo;
 
 import com.googlecode.lanterna.TerminalSize;
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
-import com.googlecode.lanterna.terminal.ansi.UnixTerminal;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 public class InputTest {
     public static void main(String[] args) throws IOException {
