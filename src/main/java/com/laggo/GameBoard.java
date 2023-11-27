@@ -11,8 +11,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /*
-General structure and printing code from https://github.com/Gelbpunkt/IdleRPG/.
+Core maze data layout and printing code adapted from https://github.com/Gelbpunkt/IdleRPG/.
 Maze fill implementation our own based on loop-erased random walks; see Wilson's paper @MIT https://www.cs.cmu.edu/~15859n/RelatedWork/RandomTrees-Wilson.pdf
+Rest is our own.
  */
 public class GameBoard {
     private final int width;
@@ -388,7 +389,7 @@ public class GameBoard {
     public void run(Terminal terminal) throws IOException {
         System.out.println("Welcome! This maze game scales in size and difficulty based on your window size.");
         System.out.println("Please take this chance to resize your window before the maze is generated. Press any key when done.");
-        System.out.println("E is the exit, M is a monster, K is a key. You need all keys to exit.");
+        System.out.println("@ is you. E is the exit, M is a monster, K is a key. You need all keys to exit.");
         System.out.println("How to play: wasd to move, q or ^C to quit, some typing may be involved! Have fun!");
         terminal.readInput();
 
