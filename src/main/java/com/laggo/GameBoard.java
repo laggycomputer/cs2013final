@@ -102,8 +102,8 @@ public class GameBoard {
         }
 
         for (final BoardCell cell : this.cells.values()) {
-            final int xInArray = cell.getLocation().getX() * 2 + 1;
-            final int yInArray = cell.getLocation().getY() * 2 + 1;
+            final int xInArray = cell.getLocation().x() * 2 + 1;
+            final int yInArray = cell.getLocation().y() * 2 + 1;
 
             ret[yInArray][xInArray] = this.getIconAt(cell.getLocation());
 

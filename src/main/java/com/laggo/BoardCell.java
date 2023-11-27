@@ -24,13 +24,13 @@ public class BoardCell {
             return null;
         }
 
-        if (other.getLocation().getY() < this.getLocation().getY()) {
+        if (other.getLocation().y() < this.getLocation().y()) {
             return WallDirection.UP;
-        } else if (other.getLocation().getY() > this.getLocation().getY()) {
+        } else if (other.getLocation().y() > this.getLocation().y()) {
             return WallDirection.DOWN;
-        } else if (other.getLocation().getX() < this.getLocation().getX()) {
+        } else if (other.getLocation().x() < this.getLocation().x()) {
             return WallDirection.LEFT;
-        } else if (other.getLocation().getX() > this.getLocation().getX()) {
+        } else if (other.getLocation().x() > this.getLocation().x()) {
             return WallDirection.RIGHT;
         }
 
