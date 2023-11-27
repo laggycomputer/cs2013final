@@ -15,11 +15,9 @@ public class BoardLocation implements Cloneable {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof BoardLocation)) {
+        if (!(obj instanceof BoardLocation other)) {
             return false;
         }
-
-        BoardLocation other = (BoardLocation) obj;
 
         return other.x == this.x && other.y == this.y;
     }
