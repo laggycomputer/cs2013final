@@ -15,7 +15,10 @@ public class Enemy extends BoardObject {
     }
 
     private static String getRandomName() {
-        final String[] NAME_BANK = new String[]{"Dylan", "Dante", "sans undertale", "Smiley Face", "Mr. Onomatopoeia", "Chandler"};
+        final String[] NAME_BANK = new String[]{
+                "Dylan", "Dante", "sans undertale",
+                "Smiley Face", "Mr. Onomatopoeia", "racecar",
+                "Isopropanal"};
         return NAME_BANK[(int) (Math.random() * NAME_BANK.length)];
     }
 
