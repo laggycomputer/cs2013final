@@ -286,8 +286,8 @@ public class GameBoard {
         objects.put(new BoardLocation(this.width - 1, this.height - 1), new Exit());
 
         // solve the maze to place enemies along the path
-        CellWalk solution = this.solve(this.getCellAt(this.playerLocation));
-        assert solution != null;
+        CellWalk mazeSolution = this.solve(this.getCellAt(this.playerLocation));
+        assert mazeSolution != null;
 
         for (int i = 0; i < 2; i++) {
             BoardLocation target;
@@ -298,11 +298,11 @@ public class GameBoard {
             objects.put(target, new MazeKey());
         }
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < mazeSolution.size() / 15; i++) {
             // place enemies along the maze solution path
             BoardLocation target;
             do {
-                target = solution.toList().get(this.rand.nextInt(solution.size())).getLocation();
+                target = mazeSolution.toList().get(this.rand.nextInt(mazeSolution.size())).getLocation();
             } while (this.playerLocation.equals(target) || this.objects.containsKey(target));
 
             objects.put(target, new Enemy());

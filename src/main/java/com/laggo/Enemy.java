@@ -5,8 +5,18 @@ import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.terminal.Terminal;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Enemy extends BoardObject {
+    private static final List<String> NAMES = new ArrayList<>(List.of(new String[]{
+            "Dylan", "Dante", "sans undertale",
+            "Smiley Face", "Mr. Onomatopoeia", "racecar",
+            "Isopropanal", "BLT", "Ramen Noodles",
+            "Gordon Freeman"}));
+
     private final String name;
 
     public Enemy() {
@@ -15,11 +25,7 @@ public class Enemy extends BoardObject {
     }
 
     private static String getRandomName() {
-        final String[] NAME_BANK = new String[]{
-                "Dylan", "Dante", "sans undertale",
-                "Smiley Face", "Mr. Onomatopoeia", "racecar",
-                "Isopropanal"};
-        return NAME_BANK[(int) (Math.random() * NAME_BANK.length)];
+        return NAMES.remove((int) (Math.random() * NAMES.size()));
     }
 
     @Override
