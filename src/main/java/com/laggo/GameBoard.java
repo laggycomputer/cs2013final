@@ -60,7 +60,7 @@ public class GameBoard {
         if (objects.containsKey(loc)) {
             return objects.get(loc).getIcon();
         } else {
-            return " " ;
+            return " ";
         }
     }
 
@@ -79,7 +79,6 @@ public class GameBoard {
     OOOOOOOOOOO
     */
     public String[][] toSkinnyMatrix() {
-
         String[][] ret = new String[this.height * 2 + 1][this.width * 2 + 1];
 
         // start with all walls
