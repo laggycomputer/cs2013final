@@ -49,10 +49,12 @@ public class Enemy extends BoardObject {
                 numCorrectCharacters++;
             }
         }
+
+        board.addThingToPrint("Enemy " + this.name + " defeated!");
     }
 
     @Override
     public String getIcon() {
-        return "E";
+        return "M";
     }
 }

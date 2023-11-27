@@ -299,6 +299,13 @@ public class GameBoard {
         } while ((randX == 0 && randY == 0) || this.objects.containsKey(new BoardLocation(randX, randY)));
 
         objects.put(new BoardLocation(randX, randY), new MazeKey(new BoardLocation(randX, randY)));
+
+        do {
+            randX = this.rand.nextInt(width);
+            randY = this.rand.nextInt(height);
+        } while ((randX == 0 && randY == 0) || this.objects.containsKey(new BoardLocation(randX, randY)));
+
+        objects.put(new BoardLocation(randX, randY), new Enemy(new BoardLocation(randX, randY)));
     }
 
     public boolean tryMove(WallDirection direction, Terminal terminal) throws IOException {
