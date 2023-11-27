@@ -13,6 +13,7 @@ public class InputTest {
 //        try (Terminal terminal = new UnixTerminal()) {
         try (Terminal terminal = new DefaultTerminalFactory().createTerminal()) {
             TerminalSize size = terminal.getTerminalSize();
+            // these dimensions leave room for the additional text pop-ups and account for the wide printing
             GameBoard board = new GameBoard(size.getColumns() / 4 - 1, size.getRows() / 2 - 2);
             board.run(terminal);
         }
