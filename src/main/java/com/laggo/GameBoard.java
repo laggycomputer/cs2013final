@@ -377,7 +377,21 @@ public class GameBoard {
         return true;
     }
 
+    public boolean hasPickedUpAllKeys() {
+        return this.objects.values().stream().noneMatch(o -> o.isVisible && o instanceof MazeKey);
+    }
+
+    public void addThingToPrint(String string) {
+        this.thingsToPrint.push(string);
+    }
+
     public void run(Terminal terminal) throws IOException {
+        System.out.println("Welcome! This maze game scales in size and difficulty based on your window size.");
+        System.out.println("Please take this chance to resize your window before the maze is generated. Press any key when done.");
+        System.out.println("E is the exit, M is a monster, K is a key. You need all keys to exit.");
+        System.out.println("How to play: wasd to move, q or ^C to quit, some typing may be involved! Have fun!");
+        terminal.readInput();
+
         KeyStroke in;
         do {
             System.out.println(this);
@@ -415,15 +429,5 @@ public class GameBoard {
                     break;
             }
         } while (!this.timeToQuit);
-//            KeyStroke keyPressed = terminal.readInput();
-//            System.out.println("keyPressed: " + keyPressed.getKeyType());
-    }
-
-    public boolean hasPickedUpAllKeys() {
-        return this.objects.values().stream().noneMatch(o -> o.isVisible && o instanceof MazeKey);
-    }
-
-    public void addThingToPrint(String string) {
-        this.thingsToPrint.push(string);
     }
 }
