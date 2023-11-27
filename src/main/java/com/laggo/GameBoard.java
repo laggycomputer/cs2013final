@@ -22,9 +22,10 @@ public class GameBoard {
     private final Random rand = new Random(1337L);
     private final boolean isStopped = false;
     private final Set<String> NOT_WALL;
-    private BoardLocation playerLocation = new BoardLocation(0, 0);
-    boolean timeToQuit = false;
     private final LinkedList<String> thingsToPrint = new LinkedList<>();
+    boolean hasWon = false;
+    boolean timeToQuit = false;
+    private BoardLocation playerLocation = new BoardLocation(0, 0);
 
     public GameBoard(int width, int height) {
         this.width = width;
@@ -43,7 +44,7 @@ public class GameBoard {
         this.populate();
         this.NOT_WALL = new HashSet<>(Arrays.asList("@", " ",
                 new MazeKey(new BoardLocation(0, 0)).getIcon(),
-                new Enemy(new BoardLocation(0, 0), "cs2013").getIcon(),
+                new Enemy(new BoardLocation(0, 0)).getIcon(),
                 new Exit().getIcon()
         ));
     }
@@ -300,7 +301,7 @@ public class GameBoard {
         objects.put(new BoardLocation(randX, randY), new MazeKey(new BoardLocation(randX, randY)));
     }
 
-    public boolean tryMove(WallDirection direction, Terminal terminal) {
+    public boolean tryMove(WallDirection direction, Terminal terminal) throws IOException {
         if (!this.getCellAt(this.playerLocation).canLeave(direction)) {
             return false;
         }
@@ -336,6 +337,11 @@ public class GameBoard {
                 System.out.print(" ");
             }
             System.out.print("\n");
+
+            if (this.hasWon) {
+                this.timeToQuit = true;
+            }
+
             in = terminal.readInput();
 
             if (in.getKeyType() != KeyType.Character) {

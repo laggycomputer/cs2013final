@@ -6,8 +6,8 @@ public class Exit extends BoardObject {
     @Override
     public void onWalkedOn(GameBoard board, Terminal terminal) {
         if (board.hasPickedUpAllKeys()) {
-            board.timeToQuit = true;
-            board.addThingToPrint("You did it!");
+            board.hasWon = true;
+            board.addThingToPrint("You did it! Press any key to continue.");
         } else {
             board.addThingToPrint("Not done yet! Pick up all keys first.");
         }
