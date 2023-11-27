@@ -11,10 +11,11 @@ General structure and printing code from https://github.com/Gelbpunkt/IdleRPG/.
 Maze fill implementation our own based on loop-erased random walks; see Wilson's paper @MIT https://www.cs.cmu.edu/~15859n/RelatedWork/RandomTrees-Wilson.pdf
  */
 public class GameBoard {
-    private static final Set<Character> NOT_WALL = new HashSet<>(Arrays.asList('@', ' '));
+    private static final Set<String> NOT_WALL = new HashSet<>(Arrays.asList("@", " "));
     private final int width;
     private final int height;
     private final Hashtable<BoardLocation, BoardCell> cells;
+    private final Hashtable<BoardLocation, BoardObject> objects = new Hashtable<>();
     private BoardLocation playerLocation = new BoardLocation(0, 0);
     private final Random rand = new Random(1337L);
 
@@ -52,6 +53,17 @@ public class GameBoard {
         }).filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
+    private String getIconAt(BoardLocation loc) {
+        if (loc.equals(this.playerLocation)) {
+            return "@";
+        }
+        if (objects.containsKey(loc)) {
+            return objects.get(loc).getIcon();
+        } else {
+            return " " ;
+        }
+    }
+
     /*
     Creates the most compact representation of this maze possible. An example (reproduce by setting the `rand` seed above to `1337L`:
     OOOOOOOOOOO
@@ -66,14 +78,14 @@ public class GameBoard {
     O   O     O
     OOOOOOOOOOO
     */
-    public char[][] toSkinnyMatrix() {
+    public String[][] toSkinnyMatrix() {
 
-        char[][] ret = new char[this.height * 2 + 1][this.width * 2 + 1];
+        String[][] ret = new String[this.height * 2 + 1][this.width * 2 + 1];
 
         // start with all walls
         for (int i = 0; i < ret.length; i++) {
             for (int j = 0; j < ret[0].length; j++) {
-                ret[i][j] = 'O';
+                ret[i][j] = "O";
             }
         }
 
@@ -81,20 +93,20 @@ public class GameBoard {
             final int xInArray = cell.getLocation().getX() * 2 + 1;
             final int yInArray = cell.getLocation().getY() * 2 + 1;
 
-            ret[yInArray][xInArray] = this.playerLocation.equals(cell.getLocation()) ? '@' : ' ';
+            ret[yInArray][xInArray] = this.getIconAt(cell.getLocation());
 
             // then open up some walls
             if (cell.canLeave(WallDirection.UP)) {
-                ret[yInArray - 1][xInArray] = ' ';
+                ret[yInArray - 1][xInArray] = " ";
             }
             if (cell.canLeave(WallDirection.DOWN)) {
-                ret[yInArray + 1][xInArray] = ' ';
+                ret[yInArray + 1][xInArray] = " ";
             }
             if (cell.canLeave(WallDirection.LEFT)) {
-                ret[yInArray][xInArray - 1] = ' ';
+                ret[yInArray][xInArray - 1] = " ";
             }
             if (cell.canLeave(WallDirection.RIGHT)) {
-                ret[yInArray][xInArray + 1] = ' ';
+                ret[yInArray][xInArray + 1] = " ";
             }
         }
 
@@ -118,16 +130,16 @@ public class GameBoard {
      */
     public String toUnicodeString() {
         // start with what we did above
-        char[][] skinnyMatrix = this.toSkinnyMatrix();
-        char[][] doubleWideMatrix = new char[skinnyMatrix.length][skinnyMatrix[0].length * 2 - 1];
-        char[][] result = new char[skinnyMatrix.length][skinnyMatrix[0].length * 2 - 1];
+        String[][] skinnyMatrix = this.toSkinnyMatrix();
+        String[][] doubleWideMatrix = new String[skinnyMatrix.length][skinnyMatrix[0].length * 2 - 1];
+        String[][] result = new String[skinnyMatrix.length][skinnyMatrix[0].length * 2 - 1];
 
         // double the width of `skinnyMatrix`, but make sure not to copy special symbols like `@` for the player twice
         for (int y = 0; y < skinnyMatrix.length; y++) {
             for (int x = 0; x < skinnyMatrix[y].length; x++) {
                 doubleWideMatrix[y][x * 2] = skinnyMatrix[y][x];
                 if (x < skinnyMatrix[y].length - 1) {
-                    doubleWideMatrix[y][x * 2 + 1] = (NOT_WALL.contains(skinnyMatrix[y][x])) ? ' ' : skinnyMatrix[y][x];
+                    doubleWideMatrix[y][x * 2 + 1] = (NOT_WALL.contains(skinnyMatrix[y][x])) ? " " : skinnyMatrix[y][x];
                 }
             }
         }
@@ -137,7 +149,7 @@ public class GameBoard {
         for (int y = 0; y < doubleWideMatrix.length; y++) {
             for (int x = 0; x < doubleWideMatrix[y].length; x++) {
                 if (!isWall(x, y, doubleWideMatrix) && isWall(x - 1, y, doubleWideMatrix)) {
-                    doubleWideMatrix[y][x - 1] = ' ';
+                    doubleWideMatrix[y][x - 1] = " ";
                 }
             }
         }
@@ -146,14 +158,14 @@ public class GameBoard {
         // copy into a result buffer to avoid clashing with itself
         for (int y = 0; y < doubleWideMatrix.length; y++) {
             for (int x = 0; x < doubleWideMatrix[y].length; x++) {
-                if (doubleWideMatrix[y][x] == 'O') {
+                if (doubleWideMatrix[y][x].equals("O")) {
                     boolean up = isWall(x, y - 1, doubleWideMatrix);
                     boolean down = isWall(x, y + 1, doubleWideMatrix);
                     boolean left = isWall(x - 1, y, doubleWideMatrix);
                     boolean right = isWall(x + 1, y, doubleWideMatrix);
 
                     // figure out how this wall ought to connect to others around it
-                    result[y][x] = getUnicodeCharacterForWall(up, down, left, right);
+                    result[y][x] = this.getUnicodeCharacterForWall(up, down, left, right);
                 } else {
                     // this isn't a wall; just copy it
                     result[y][x] = doubleWideMatrix[y][x];
@@ -162,34 +174,34 @@ public class GameBoard {
         }
 
         // join each line into a `String`, join the lines with newlines, and send it off
-        return Arrays.stream(result).map(String::new).collect(Collectors.joining("\n"));
+        return Arrays.stream(result).map(l -> String.join("", l)).collect(Collectors.joining("\n"));
     }
 
-    private boolean isWall(int x, int y, char[][] matrix) {
-        return x >= 0 && x < matrix[0].length && y >= 0 && y < matrix.length && matrix[y][x] == 'O';
+    private boolean isWall(int x, int y, String[][] matrix) {
+        return x >= 0 && x < matrix[0].length && y >= 0 && y < matrix.length && matrix[y][x].equals("O");
     }
 
-    private char getUnicodeCharacterForWall(boolean up, boolean down, boolean left, boolean right) {
-        if (up && down && left && right) return '┼';
+    private String getUnicodeCharacterForWall(boolean up, boolean down, boolean left, boolean right) {
+        if (up && down && left && right) return "┼";
 
-        if (!up && down && left && right) return '┬';
-        if (up && !down && left && right) return '┴';
-        if (up && down && !left && right) return '├';
-        if (up && down && left && !right) return '┤';
+        if (!up && down && left && right) return "┬";
+        if (up && !down && left && right) return "┴";
+        if (up && down && !left && right) return "├";
+        if (up && down && left && !right) return "┤";
 
-        if (!up && !down && left && right) return '─';
-        if (up && !down && !left && right) return '└';
-        if (up && down && !left && !right) return '│';
-        if (!up && down && !left && right) return '┌';
-        if (up && !down && left && !right) return '┘';
-        if (!up && down && left && !right) return '┐';
+        if (!up && !down && left && right) return "─";
+        if (up && !down && !left && right) return "└";
+        if (up && down && !left && !right) return "│";
+        if (!up && down && !left && right) return "┌";
+        if (up && !down && left && !right) return "┘";
+        if (!up && down && left && !right) return "┐";
 
-        if (up && !down && !left && !right) return '╵';
-        if (!up && down && !left && !right) return '╷';
-        if (!up && !down && left && !right) return '╴';
-        if (!up && !down && !left && right) return '╶';
+        if (up && !down && !left && !right) return "╵";
+        if (!up && down && !left && !right) return "╷";
+        if (!up && !down && left && !right) return "╴";
+        if (!up && !down && !left && right) return "╶";
 
-        return ' ';
+        return " ";
     }
 
     @Override
