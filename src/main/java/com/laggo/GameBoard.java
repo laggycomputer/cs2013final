@@ -370,7 +370,7 @@ public class GameBoard {
                 break;
         }
 
-        if (this.objects.containsKey(this.playerLocation)) {
+        if (this.objects.containsKey(this.playerLocation) && this.objects.get(this.playerLocation).isVisible) {
             this.objects.get(this.playerLocation).onWalkedOn(this, terminal);
         }
 
