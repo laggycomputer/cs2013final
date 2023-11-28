@@ -420,12 +420,9 @@ public class GameBoard {
                 this.tryMove(WallDirection.LEFT, terminalInterface);
             } else if ("s".equals(strIn)) {
                 this.tryMove(WallDirection.DOWN, terminalInterface);
-
             } else if ("d".equals(strIn)) {
                 this.tryMove(WallDirection.RIGHT, terminalInterface);
             }
-
-
         } while (!this.timeToQuit);
     }
 }
