@@ -1,8 +1,6 @@
 package com.laggo;
 
 import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.input.KeyType;
-import com.googlecode.lanterna.terminal.Terminal;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.IOException;
@@ -351,7 +349,7 @@ public class GameBoard {
         return null;
     }
 
-    public boolean tryMove(WallDirection direction, Terminal terminal) throws IOException {
+    public boolean tryMove(WallDirection direction, TerminalInterface terminalInterface) throws IOException {
         if (!this.getCellAt(this.playerLocation).canLeave(direction)) {
             return false;
         }
@@ -372,7 +370,7 @@ public class GameBoard {
         }
 
         if (this.objects.containsKey(this.playerLocation) && this.objects.get(this.playerLocation).isVisible) {
-            this.objects.get(this.playerLocation).onWalkedOn(this, terminal);
+            this.objects.get(this.playerLocation).onWalkedOn(this, terminalInterface);
         }
 
         return true;
@@ -386,17 +384,20 @@ public class GameBoard {
         this.thingsToPrint.push(string);
     }
 
-    public void run(Terminal terminal) throws IOException {
+    public void run(TerminalInterface terminalInterface) throws IOException {
         System.out.println("Welcome! This maze game scales in size and difficulty based on your window size.");
-        System.out.println("Please take this chance to resize your window before the maze is generated. Press any key when done.");
+        if (terminalInterface.isUsingLanterna()) {
+            System.out.println("Please take this chance to resize your window before the maze is generated. Press any key when done.");
+        } else {
+            System.out.println(
+                    "You're not using Lanterna, meaning terminal size discovery and raw keystroke handling are missing. After typing any character, make sure you hit Enter.");
+        }
         System.out.println("@ is you. E is the exit, M is a monster, K is a key. You need all keys to exit.");
         System.out.println("How to play: wasd to move, q or ^C to quit, some typing may be involved! Have fun!");
-        terminal.readInput();
+        terminalInterface.getNextString();
 
         KeyStroke in;
         do {
-            terminal.putString("AAAAAAAAAAAAA");
-
             System.out.println(this);
             while (!this.thingsToPrint.isEmpty()) {
                 System.out.print(thingsToPrint.pop());
@@ -408,29 +409,23 @@ public class GameBoard {
                 this.timeToQuit = true;
             }
 
-            in = terminal.readInput();
+            String strIn = terminalInterface.getNextString();
 
-            if (in.getKeyType() != KeyType.Character) {
-                continue;
+            if ("q".equals(strIn)) {
+                this.timeToQuit = true;
+
+            } else if ("w".equals(strIn)) {
+                this.tryMove(WallDirection.UP, terminalInterface);
+            } else if ("a".equals(strIn)) {
+                this.tryMove(WallDirection.LEFT, terminalInterface);
+            } else if ("s".equals(strIn)) {
+                this.tryMove(WallDirection.DOWN, terminalInterface);
+
+            } else if ("d".equals(strIn)) {
+                this.tryMove(WallDirection.RIGHT, terminalInterface);
             }
 
-            switch (in.getCharacter()) {
-                case 'q':
-                    this.timeToQuit = true;
-                    continue;
-                case 'w':
-                    this.tryMove(WallDirection.UP, terminal);
-                    break;
-                case 'a':
-                    this.tryMove(WallDirection.LEFT, terminal);
-                    break;
-                case 's':
-                    this.tryMove(WallDirection.DOWN, terminal);
-                    break;
-                case 'd':
-                    this.tryMove(WallDirection.RIGHT, terminal);
-                    break;
-            }
+
         } while (!this.timeToQuit);
     }
 }

@@ -38,4 +38,12 @@ public class TerminalInterface {
     public boolean isUsingLanterna() {
         return this.usingLanterna;
     }
+
+    public int getTerminalWidth() throws IOException {
+        return this.usingLanterna ? lanternaTerminal.getTerminalSize().getColumns() : 120;
+    }
+
+    public int getTerminalHeight() throws IOException {
+        return this.usingLanterna ? lanternaTerminal.getTerminalSize().getRows() : 30;
+    }
 }

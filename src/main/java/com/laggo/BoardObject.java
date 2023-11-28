@@ -8,7 +8,7 @@ public abstract class BoardObject {
     public boolean isStopping;
     public boolean isVisible = true;
 
-    public abstract void onWalkedOn(GameBoard board, Terminal terminal) throws IOException;
+    public abstract void onWalkedOn(GameBoard board, TerminalInterface terminalInterface) throws IOException;
 
     public abstract String getIcon();
 }

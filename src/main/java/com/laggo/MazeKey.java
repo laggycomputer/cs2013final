@@ -8,7 +8,7 @@ public class MazeKey extends BoardObject {
     }
 
     @Override
-    public void onWalkedOn(GameBoard board, Terminal terminal) {
+    public void onWalkedOn(GameBoard board, TerminalInterface terminalInterface) {
         this.isVisible = false;
         if (board.hasPickedUpAllKeys()) {
             board.addThingToPrint("You've picked up both keys, head to the exit!");

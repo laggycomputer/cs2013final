@@ -1,12 +1,6 @@
 package com.laggo;
 
 public record BoardLocation(int x, int y) implements Cloneable {
-    public BoardLocation {
-        if (x <= 0 || y <= 0) {
-            throw new java.lang.IllegalArgumentException();
-        }
-    }
-
     public BoardLocation offsetBy(int x, int y) {
         return new BoardLocation(this.x + x, this.y + y);
     }

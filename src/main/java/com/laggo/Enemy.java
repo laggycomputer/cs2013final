@@ -27,7 +27,7 @@ public class Enemy extends BoardObject {
     }
 
     @Override
-    public void onWalkedOn(GameBoard board, Terminal terminal) throws IOException {
+    public void onWalkedOn(GameBoard board, TerminalInterface terminalInterface) throws IOException {
         System.out.println("You've met an enemy! Type its name backwards to... deal with it!");
         int numCorrectCharacters = 0;
         char[] progress = new char[this.name.length()];
@@ -40,12 +40,9 @@ public class Enemy extends BoardObject {
             System.out.println("Progress: " + new String(progress));
             System.out.println("Type the rightmost missing character!");
 
-            KeyStroke in;
-            do {
-                in = terminal.readInput();
-            } while (in == null || in.getKeyType() != KeyType.Character);
+            String strIn = terminalInterface.getNextString();
 
-            if (in.getCharacter() != this.name.codePointAt(this.name.length() - 1 - numCorrectCharacters)) {
+            if (strIn.length() != 1 || strIn.codePointAt(0) != this.name.codePointAt(this.name.length() - 1 - numCorrectCharacters)) {
                 System.out.println("You got it wrong! You've got to restart now.");
                 for (int i = 0; i < this.name.length(); i++) {
                     progress[i] = ' ';

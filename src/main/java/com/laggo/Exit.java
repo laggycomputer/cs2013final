@@ -4,7 +4,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 
 public class Exit extends BoardObject {
     @Override
-    public void onWalkedOn(GameBoard board, Terminal terminal) {
+    public void onWalkedOn(GameBoard board, TerminalInterface terminalInterface) {
         if (board.hasPickedUpAllKeys()) {
             board.hasWon = true;
             board.addThingToPrint("You've beaten the maze! Press any key to continue.");
