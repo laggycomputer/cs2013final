@@ -395,6 +395,8 @@ public class GameBoard {
 
         KeyStroke in;
         do {
+            terminal.putString("AAAAAAAAAAAAA");
+
             System.out.println(this);
             while (!this.thingsToPrint.isEmpty()) {
                 System.out.print(thingsToPrint.pop());
