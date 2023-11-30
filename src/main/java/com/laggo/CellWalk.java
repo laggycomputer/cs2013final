@@ -6,7 +6,7 @@ import java.util.List;
 
 public class CellWalk {
     private int capacity;
-    private int headIndex = 0;
+    private int headIndex = -1;
     private BoardCell[] array;
 
     public CellWalk() {
@@ -32,34 +32,30 @@ public class CellWalk {
     }
 
     public void push(BoardCell cell) {
-        if (headIndex == capacity) {
+        if (headIndex + 1 == capacity) {
             this.expand();
-            assert (headIndex < capacity);
+            assert (headIndex + 1 < capacity);
         }
-        array[headIndex++] = cell;
+        array[++headIndex] = cell;
     }
 
     public BoardCell peek() {
-        return this.array[headIndex - 1];
+        return this.array[headIndex];
     }
 
     public BoardCell pop() {
-        return this.array[--headIndex];
-    }
-
-    public boolean contains(BoardCell cell) {
-        return Arrays.stream(this.array).toList().contains(cell);
+        return this.array[headIndex--];
     }
 
     public List<BoardCell> toList() {
-        return Arrays.stream(this.array).toList().subList(0, this.headIndex);
+        return Arrays.stream(this.array).toList().subList(0, this.headIndex + 1);
     }
 
     public boolean isEmpty() {
-        return this.headIndex > 0;
+        return this.headIndex >= 0;
     }
 
     public int size() {
-        return this.headIndex;
+        return this.headIndex + 1;
     }
 }
