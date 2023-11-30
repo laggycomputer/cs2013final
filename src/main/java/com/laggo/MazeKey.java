@@ -1,10 +1,6 @@
 package com.laggo;
 
 public class MazeKey extends BoardObject {
-    public MazeKey() {
-        this.isStopping = false;
-    }
-
     @Override
     public void onWalkedOn(GameBoard board, TerminalInterface terminalInterface) {
         this.isVisible = false;
