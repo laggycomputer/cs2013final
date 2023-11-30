@@ -1,6 +1,5 @@
 package com.laggo;
 
-import com.googlecode.lanterna.input.KeyStroke;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.io.IOException;
@@ -396,7 +395,6 @@ public class GameBoard {
         System.out.println("How to play: wasd to move, q or ^C to quit, some typing may be involved! Have fun!");
         terminalInterface.getNextString();
 
-        KeyStroke in;
         do {
             System.out.println(this);
             while (!this.thingsToPrint.isEmpty()) {

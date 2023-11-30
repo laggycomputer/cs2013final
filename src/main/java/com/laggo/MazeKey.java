@@ -1,7 +1,5 @@
 package com.laggo;
 
-import com.googlecode.lanterna.terminal.Terminal;
-
 public class MazeKey extends BoardObject {
     public MazeKey() {
         this.isStopping = false;

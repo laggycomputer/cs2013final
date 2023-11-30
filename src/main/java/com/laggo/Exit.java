@@ -1,7 +1,5 @@
 package com.laggo;
 
-import com.googlecode.lanterna.terminal.Terminal;
-
 public class Exit extends BoardObject {
     @Override
     public void onWalkedOn(GameBoard board, TerminalInterface terminalInterface) {

@@ -1,9 +1,5 @@
 package com.laggo;
 
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.input.KeyType;
-import com.googlecode.lanterna.terminal.Terminal;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

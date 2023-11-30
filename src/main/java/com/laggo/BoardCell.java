@@ -50,10 +50,6 @@ public class BoardCell {
         return !this.walls.contains(direction);
     }
 
-    public boolean hasAllWalls() {
-        return this.walls.size() == 4;
-    }
-
     public BoardLocation getLocation() {
         return this.location;
     }

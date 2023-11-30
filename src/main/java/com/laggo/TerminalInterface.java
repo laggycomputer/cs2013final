@@ -5,7 +5,9 @@ import com.googlecode.lanterna.input.KeyType;
 import com.googlecode.lanterna.terminal.Terminal;
 import com.googlecode.lanterna.terminal.ansi.UnixTerminal;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class TerminalInterface {
     private Terminal lanternaTerminal = null;
@@ -17,7 +19,7 @@ public class TerminalInterface {
             this.lanternaTerminal = new UnixTerminal();
             this.usingLanterna = true;
         } catch (Exception e) {
-            this.terminalReader = new BufferedReader(new InputStreamReader( System.in));
+            this.terminalReader = new BufferedReader(new InputStreamReader(System.in));
         }
     }
 
