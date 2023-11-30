@@ -39,10 +39,10 @@ public class TerminalInterface {
     }
 
     public int getTerminalWidth() throws IOException {
-        return this.usingLanterna ? lanternaTerminal.getTerminalSize().getColumns() : 120;
+        return this.usingLanterna ? lanternaTerminal.getTerminalSize().getColumns() : 75;
     }
 
     public int getTerminalHeight() throws IOException {
-        return this.usingLanterna ? lanternaTerminal.getTerminalSize().getRows() : 30;
+        return this.usingLanterna ? lanternaTerminal.getTerminalSize().getRows() : 20;
     }
 }
