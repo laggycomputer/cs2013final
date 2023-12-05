@@ -19,7 +19,7 @@ public class Enemy extends BoardObject {
     }
 
     private static String getRandomName() {
-        return NAMES.remove((int) (Math.random() * NAMES.size()));
+        return NAMES.get((int) (Math.random() * NAMES.size()));
     }
 
     @Override
