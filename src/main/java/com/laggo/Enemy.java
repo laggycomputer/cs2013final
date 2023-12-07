@@ -7,9 +7,9 @@ import java.util.List;
 public class Enemy extends BoardObject {
     private static final List<String> NAMES = new ArrayList<>(List.of(new String[]{
             "Dylan", "Dante", "sans undertale",
-            "Smiley Face", "Mr. Onomatopoeia", "racecar",
-            "Isopropanal", "BLT", "Ramen Noodles",
-            "Gordon Freeman"}));
+            "Smiley Face", "racecar", "Isopropanal",
+            "BLT", "Ramen Noodles", "Gordon Freeman",
+            "fizzbuzz"}));
 
     private final String name;
 

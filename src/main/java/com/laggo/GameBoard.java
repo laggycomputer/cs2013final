@@ -386,7 +386,7 @@ public class GameBoard {
     public void run(TerminalInterface terminalInterface) throws IOException {
         System.out.println("Welcome! This maze game scales in size and difficulty based on your window size.");
         if (terminalInterface.isUsingLanterna()) {
-            System.out.println("Please take this chance to resize your window before the maze is generated. Press any key when done.");
+            System.out.println("Please take this chance to stop the game and resize your window before the maze is generated. Press any key when done.");
         } else {
             System.out.println(
                     "You're not using Lanterna, meaning terminal size discovery and raw keystroke handling are missing. After typing any character, make sure you hit Enter.");
