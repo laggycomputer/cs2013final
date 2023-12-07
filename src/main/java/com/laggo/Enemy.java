@@ -38,7 +38,9 @@ public class Enemy extends BoardObject {
 
             String strIn = terminalInterface.getNextString();
 
-            if (strIn.length() != 1 || strIn.codePointAt(0) != this.name.codePointAt(this.name.length() - 1 - numCorrectCharacters)) {
+            if (strIn.length() != 1
+                    || strIn.codePointAt(0) != this.name.codePointAt(
+                            this.name.length() - 1 - numCorrectCharacters)) {
                 System.out.println("You got it wrong! You've got to restart now.");
                 for (int i = 0; i < this.name.length(); i++) {
                     progress[i] = ' ';
